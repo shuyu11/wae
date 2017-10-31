@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="http://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
+    <style>
+        p{
+            height:10px;
+        }
+    </style>
+</head>
+<body>
+用户名：<input type="text" id="user"><br>
+留言板：<input type="text" id="con">
+<button>提交</button>
+<div id="com">
+
+</div>
+<script>
+    $(function () {
+        csy();
+        $('button').click(function(){
+            $.ajax({
+                url:'http://localhost:3000/word/con',
+                type:'POST',
+                dataType:"json",
+                data:{user:$('#user').val(),con:$('#con').val()},
+                success:function(e){
+                    $.ajax({
+                        url:'http://localhost:3000/word',
+                        type:'POST',
+                        dataType:"json",
+                        data:{user:$('#user').val(),con:$('#con').val()},
+                        success:function(e){
+                            var str=""
+                            for( i in e){
+                                str+=`<div><h3>${e[i].user}</h3><p>${e[i].bbs}</p><span data-id='${e[i].id}'>删除</span></div>`
+                            }
+                            $("#com").html(str)
+                        }
+                    })
+                }
+            })
+
+        })
+        $('body').delegate('span','click',function(){
+            var d=$(this).attr('data-id');
+            var a=$(this)
+            console.log(d)
+            $.ajax({
+                url:'http://localhost:3000/word/del',
+                type:'POST',
+                dataType:"json",
+                data:{num:d},
+                success:function(e){
+                    a.parent().remove();
+                    csy()
+                }
+            })
+        })
+    });
+
+    function csy(){
+        $.ajax({
+            url:'http://localhost:3000/word',
+            type:'post',
+            success:function(e){
+                console.log(e);
+                var str=""
+                for( i in e){
+                    str+=`<div><h3>${e[i].user}</h3><p>${e[i].bbs}</p><span data-id='${e[i].id}'>删除</span></div>`
+                }
+                $("#com").html(str)
+            }
+        })
+    }
+</script>
+</body>
+</html>
